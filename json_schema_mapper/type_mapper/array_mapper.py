@@ -13,10 +13,13 @@ class ArrayMapper(BaseTypeMapper):
     def perform_mapping_on_list(self, json_schema: str) -> str:
         array_index = json_schema.find('[]')
 
+        new_json_schema = ''
+
         try:
-            new_json_schema = json_schema[array_index + 1:]
+            if array_index != -1:
+                new_json_schema = json_schema[array_index + 1:]
         except IndexError:
-            new_json_schema = ''
+            pass
 
         current_map_type = self._current_mapped_type
         current_map_type.properties.is_many = True

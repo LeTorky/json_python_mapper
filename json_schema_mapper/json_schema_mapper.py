@@ -1,4 +1,6 @@
-from typing import List
+from typing import List, Optional, Any
+
+from pydantic import BaseModel, create_model
 
 from json_schema_mapper.mapper_types import MappedType
 from json_schema_mapper.type_mapper import (
@@ -63,6 +65,43 @@ class JSONSchemaMapper:
             mapper_instance = mapper(self.__mapped_type_stack)
             json_schema = mapper_instance.perform_mapping_on_list(json_schema)
 
+    def __get_pydantic_model(self) -> BaseModel:
+        mapped_type = self.mapped_type
+        mapped_dict = {}
+        mapped_type_properties = mapped_type.properties
+
+        for entry in mapped_type.mapped_children:
+            output_type = entry.type
+            entry_properties = entry.properties
+            entry_name = entry.name
+
+            if entry_properties.is_many:
+                output_type = List[output_type]
+
+            output_map = (output_type, ...)
+
+            if entry_properties.is_optional:
+                output_map = (output_type, None)
+
+            mapped_dict[entry_name] = output_map
+
+        output_schema = create_model(
+            "CreatedSchema",
+            **mapped_dict
+        )
+
+        if mapped_type_properties.is_many:
+            output_schema = List[output_schema]
+
+        if mapped_type_properties.is_optional:
+            output_schema = Optional[output_schema]
+
+        return output_schema
+
     @property
     def mapped_type(self) -> MappedType:
         return self.__mapped_type_stack[0]
+
+    @property
+    def pydantic_model(self) -> Any:
+        return self.__get_pydantic_model()

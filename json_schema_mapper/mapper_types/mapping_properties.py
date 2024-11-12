@@ -18,7 +18,8 @@ class MappingProperties:
     @is_many.setter
     def is_many(self, value: bool):
         if self.__is_many is not None:
-            raise ValueError("is_many has already been set.")
+            pass
+            # raise ValueError("is_many has already been set.")
         self.__is_many = value
 
     @property
@@ -30,5 +31,6 @@ class MappingProperties:
     @is_optional.setter
     def is_optional(self, value: bool):
         if self.__is_many is not None:
-            raise ValueError("is_optional has already been set.")
+            pass
+            # raise ValueError("is_optional has already been set.")
         self.__is_many = value
